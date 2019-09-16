@@ -1,0 +1,53 @@
+<div class="mat-elevation-z6" style="position: fixed;top: 0;left: 0;right: 0;z-index: 2;" *ngIf="!partyState" @partyStateHeader>
+  <nav style="background-color: #3f51b5; display: flex; justify-content: flex-end; align-items: center; padding: 8px 16px; color: white">
+    <div style="align-self: flex-end; display: flex; justify-content: center;align-items: center;" *ngIf="(user$ | async)?.isSet">
+      <div *ngIf="(notifications$ | async)?.length as count" (mouseleave)="clearNotifications(); showNotifications = false" (mouseenter)="showNotifications = true;" style="background-color: red; height: 28px; width: 28px; margin-right: 10px; border-radius: 4px; display: flex; justify-content: center">
+        <p>{{count}}</p>
+        <ng-container *ngIf="showNotifications">
+          <div style="position: absolute; top: 60px">
+            <div *ngFor="let notification of (notifications$ | async)" style="display: flex; justify-content: center; height: 40px; width: 200px; background-color: rgb(255, 64, 129)">
+                <span style="font-size: 24px">New {{notification.type}} Added!</span>
+              </div>
+          </div>
+        </ng-container>
+      </div>
+      <span style="margin-right: 10px;">Welcome, {{(user$ | async)?.name}}</span>
+      <app-user-icon [logo]="(user$ | async)?.logo" size="40" color="accent"></app-user-icon>
+    </div>
+  </nav>
+</div>
+<div class="container-fluid" style="margin-top: 56px" @partyStartedBody  *ngIf="!partyState">
+  <div class="row">
+    <div class="col-8" @partyStateLeftColumn>
+      <nav mat-tab-nav-bar>
+        <button mat-tab-link
+          mat-button
+           *ngFor="let link of navLinks"
+           [routerLink]="link.path"
+           routerLinkActive #rla="routerLinkActive"
+           [routerLinkActiveOptions]="{ exact: true }"
+           [active]="rla.isActive">
+          {{link.label}}
+      </button>
+      </nav>
+
+      <router-outlet></router-outlet>
+    </div>
+    <div class="col-4" @partyStateRightColumn>
+      <app-overview (startParty)="startParty()"></app-overview>
+    </div>
+  </div>
+</div>
+
+<div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: -1"
+    (mouseenter)="mouseOver = true" (mouseleave)="mouseOver = false"
+    *ngIf="partyState !== ''" [@videoContainer]="partyState">
+  <div #player></div>
+  <button mat-mini-fab color="accent" (click)="partyState = ''" *ngIf="mouseOver"
+    (mouseenter)="buttonHover = true" (mouseleave)="buttonHover = false"
+    [ngStyle]="{ 'opacity': buttonHover ? '1': '0.35'}"
+    style="position: fixed; top: 8px; left: 8px; z-index: 5"
+    matTooltip="Stop the Party" matTooltipPosition="right">
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
